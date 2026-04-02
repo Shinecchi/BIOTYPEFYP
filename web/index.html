@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BioType — Keystroke Authentication</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="19" stroke="#00d4ff" stroke-width="1.5"/>
+        <path d="M20 8 C13 8 8 13 8 20" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M20 8 C27 8 32 13 32 20" stroke="#00ff88" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M12 20 C12 26.6 15.6 32 20 32" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M28 20 C28 26.6 24.4 32 20 32" stroke="#00ff88" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M16 20 C16 23.3 17.8 26 20 26" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M24 20 C24 23.3 22.2 26 20 26" stroke="#00ff88" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="20" cy="20" r="2" fill="#00d4ff"/>
+      </svg>
+      <div>
+        <span class="logo-name">BioType</span>
+        <span class="logo-sub">Keystroke Biometric Authentication</span>
+      </div>
+    </div>
+    <div class="header-badges">
+      <span class="badge badge-model">SNN v2.0 · Free-Text</span>
+      <span id="conn-badge" class="badge badge-offline">● OFFLINE</span>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <!-- ===== LEFT — TYPING PANEL ===== -->
+    <section class="panel panel-left">
+
+      <!-- ENROLLMENT -->
+      <div id="enroll-section" class="card">
+        <div class="card-header">
+          <span class="card-icon">🔐</span>
+          <div>
+            <h2 class="card-title">Enrollment</h2>
+            <p class="card-desc">Type freely to register your biometric profile. Press <kbd>Enter</kbd> when done.</p>
+          </div>
+        </div>
+        <textarea
+          id="enroll-input"
+          class="typing-area"
+          placeholder="Start typing anything — sentences, notes, thoughts…  (aim for 10+ seconds of typing)"
+          rows="6"
+          spellcheck="false"
+        ></textarea>
+        <div class="card-footer">
+          <span id="enroll-event-count" class="stat-pill">0 events captured</span>
+          <button id="enroll-btn" class="btn btn-primary" disabled>Enroll ›</button>
+        </div>
+        <div id="enroll-status" class="status-msg"></div>
+      </div>
+
+      <!-- VERIFICATION TYPING -->
+      <div id="verify-section" class="card card-disabled">
+        <div class="card-header">
+          <span class="card-icon">⌨️</span>
+          <div>
+            <h2 class="card-title">Live Verification</h2>
+            <p class="card-desc">Type naturally. The system continuously monitors your biometric signature.</p>
+          </div>
+        </div>
+        <textarea
+          id="verify-input"
+          class="typing-area"
+          placeholder="Type freely here after enrollment…"
+          rows="8"
+          spellcheck="false"
+          disabled
+        ></textarea>
+        <button id="re-enroll-btn" class="btn btn-ghost">↩ Re-enroll</button>
+      </div>
+    </section>
+
+    <!-- ===== CENTER — TRUST GAUGE ===== -->
+    <section class="panel panel-center">
+      <div class="card gauge-card">
+        <!-- Pulse rings -->
+        <div id="pulse-ring-1" class="pulse-ring"></div>
+        <div id="pulse-ring-2" class="pulse-ring pulse-ring-2"></div>
+
+        <!-- SVG Gauge -->
+        <div class="gauge-wrapper">
+          <svg class="gauge-svg" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+            <!-- Track -->
+            <circle class="gauge-track" cx="110" cy="110" r="88" />
+            <!-- Progress arc -->
+            <circle id="gauge-arc" class="gauge-arc" cx="110" cy="110" r="88"
+              stroke-dasharray="553" stroke-dashoffset="553" />
+          </svg>
+          <div class="gauge-center">
+            <span id="trust-pct" class="trust-number">—</span>
+            <span class="trust-label">TRUST SCORE</span>
+          </div>
+        </div>
+
+        <!-- Decision Badge -->
+        <div id="decision-badge" class="decision-badge decision-idle">
+          <span id="decision-icon">◉</span>
+          <span id="decision-text">AWAITING ENROLLMENT</span>
+        </div>
+
+        <!-- Stats row -->
+        <div class="stats-row">
+          <div class="stat">
+            <span id="stat-windows" class="stat-val">0</span>
+            <span class="stat-key">Windows</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <span id="stat-distance" class="stat-val">—</span>
+            <span class="stat-key">Last Dist.</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <span id="stat-enrolled" class="stat-val">No</span>
+            <span class="stat-key">Enrolled</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== RIGHT — EVENT LOG ===== -->
+    <section class="panel panel-right">
+      <div class="card log-card">
+        <div class="card-header">
+          <span class="card-icon">📋</span>
+          <h2 class="card-title">Authentication Log</h2>
+          <button id="clear-log-btn" class="btn btn-ghost btn-sm">Clear</button>
+        </div>
+        <div id="event-log" class="event-log">
+          <div class="log-empty">Authentication events will appear here…</div>
+        </div>
+      </div>
+
+      <!-- HOW IT WORKS mini-section -->
+      <div class="card info-card">
+        <h3 class="info-title">How it works</h3>
+        <ol class="info-steps">
+          <li><strong>Enroll</strong> — type freely to build your biometric profile</li>
+          <li><strong>Verify</strong> — the model analyses Dwell + Flight times in real-time</li>
+          <li><strong>GAFMAT</strong> — timing patterns converted to 10×10 image tensors</li>
+          <li><strong>Siamese SNN</strong> — 64-D embeddings compared against your prototype</li>
+          <li><strong>EMA Trust</strong> — smoothed score drives 3-tier access control</li>
+        </ol>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

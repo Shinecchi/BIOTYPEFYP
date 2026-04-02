@@ -1,0 +1,8 @@
+numpy
+pynput
+scipy
+pyts
+tensorflow
+fastapi
+uvicorn
+websockets
